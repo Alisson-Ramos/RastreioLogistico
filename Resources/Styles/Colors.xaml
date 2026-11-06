@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  CBTPRDM - Trabalho Prático 03 - Rastreamento Logístico (.NET MAUI + MVVM)
+  Aluno: Alisson Ramos Aquino dos Santos - Prontuário: CB3032868
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <Color x:Key="Primaria">#0B2545</Color>
+    <Color x:Key="PrimariaClara">#13315C</Color>
+    <Color x:Key="Destaque">#F2A541</Color>
+    <Color x:Key="DestaqueEscuro">#D98A1F</Color>
+
+    <Color x:Key="Fundo">#F3F5F9</Color>
+    <Color x:Key="Superficie">#FFFFFF</Color>
+    <Color x:Key="Borda">#E3E7EE</Color>
+
+    <Color x:Key="Texto">#1C2533</Color>
+    <Color x:Key="TextoSuave">#667085</Color>
+    <Color x:Key="TextoSobrePrimaria">#FFFFFF</Color>
+    <Color x:Key="TextoSobrePrimariaSuave">#A9B8CF</Color>
+
+    <Color x:Key="Alerta">#C62828</Color>
+    <Color x:Key="AlertaFundo">#FDECEC</Color>
+
+    <SolidColorBrush x:Key="PrimariaBrush" Color="{StaticResource Primaria}" />
+    <SolidColorBrush x:Key="DestaqueBrush" Color="{StaticResource Destaque}" />
+</ResourceDictionary>

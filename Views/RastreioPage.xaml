@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  CBTPRDM - Trabalho Prático 03 - Rastreamento Logístico (.NET MAUI + MVVM)
+  Aluno: Alisson Ramos Aquino dos Santos - Prontuário: CB3032868
+-->
+<!-- VIEW - Página inicial: entrada do código de rastreamento -->
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:RastreioLogistico.ViewModels"
+             x:Class="RastreioLogistico.Views.RastreioPage"
+             x:DataType="vm:RastreioViewModel"
+             Title="Rastreio Logístico">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+
+            <!-- Cabeçalho -->
+            <Grid BackgroundColor="{StaticResource Primaria}" Padding="24,28,24,64" RowSpacing="6">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Border Grid.Row="0" WidthRequest="64" HeightRequest="64" HorizontalOptions="Start"
+                        BackgroundColor="{StaticResource PrimariaClara}" StrokeThickness="0"
+                        StrokeShape="RoundRectangle 18" Margin="0,0,0,10">
+                    <Label Text="📦" FontSize="30" HorizontalOptions="Center" VerticalOptions="Center" />
+                </Border>
+                <Label Grid.Row="1" Text="Onde está minha encomenda?" FontSize="24" FontAttributes="Bold"
+                       TextColor="{StaticResource TextoSobrePrimaria}" />
+                <Label Grid.Row="2" Text="Informe o código de rastreamento para acompanhar o status do seu pacote em tempo real."
+                       FontSize="14" TextColor="{StaticResource TextoSobrePrimariaSuave}" />
+            </Grid>
+
+            <!-- Formulário -->
+            <Border Style="{StaticResource Cartao}" Margin="16,-44,16,0" Padding="18">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Opacity="0.10" Radius="18" Offset="0,6" />
+                </Border.Shadow>
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Código de rastreamento" Style="{StaticResource Rotulo}" />
+
+                    <Border Stroke="{StaticResource Borda}" StrokeThickness="1.5" StrokeShape="RoundRectangle 12"
+                            BackgroundColor="{StaticResource Fundo}" Padding="12,2">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                            <Label Text="🔎" VerticalOptions="Center" FontSize="18" />
+                            <Entry Grid.Column="1"
+                                   x:Name="EntradaCodigo"
+                                   Placeholder="Ex.: BR123456789BR"
+                                   Text="{Binding CodigoRastreio, Mode=TwoWay}"
+                                   TextTransform="Uppercase"
+                                   MaxLength="13"
+                                   FontFamily="Consolas"
+                                   ReturnType="Search"
+                                   ReturnCommand="{Binding RastrearCommand}"
+                                   IsEnabled="{Binding IsNotBusy}"
+                                   AutomationId="EntradaCodigo"
+                                   SemanticProperties.Hint="Digite o código de rastreamento do pacote" />
+                            <Button Grid.Column="2" Text="✕" Command="{Binding LimparCommand}"
+                                    BackgroundColor="Transparent" TextColor="{StaticResource TextoSuave}"
+                                    FontSize="14" WidthRequest="36" HeightRequest="36" Padding="0"
+                                    SemanticProperties.Description="Limpar código" />
+                        </Grid>
+                    </Border>
+
+                    <!-- Mensagem de erro / validação -->
+                    <Border IsVisible="{Binding TemErro}" BackgroundColor="{StaticResource AlertaFundo}"
+                            StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="12,10">
+                        <Label Text="{Binding MensagemErro}" TextColor="{StaticResource Alerta}" FontSize="13" />
+                    </Border>
+
+                    <Button Text="Rastrear pacote"
+                            Command="{Binding RastrearCommand}"
+                            AutomationId="BotaoRastrear" />
+
+                    <HorizontalStackLayout IsVisible="{Binding IsBusy}" HorizontalOptions="Center" Spacing="10">
+                        <ActivityIndicator IsRunning="{Binding IsBusy}" Color="{StaticResource Primaria}"
+                                           WidthRequest="22" HeightRequest="22" />
+                        <Label Text="Consultando a transportadora..." TextColor="{StaticResource TextoSuave}"
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Pesquisas recentes -->
+            <VerticalStackLayout Margin="20,24,20,0" Spacing="10" IsVisible="{Binding TemPesquisasRecentes}">
+                <Label Text="Pesquisas recentes" Style="{StaticResource TituloSecao}" />
+                <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding PesquisasRecentes}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <!-- x:DataType nulo: binding resolvido em tempo de execução (RelativeSource até a ViewModel) -->
+                            <Button x:DataType="{x:Null}" Style="{StaticResource Chip}" Text="{Binding .}" FontFamily="Consolas"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:RastreioViewModel}}, Path=UsarCodigoCommand}"
+                                    CommandParameter="{Binding .}" />
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </FlexLayout>
+            </VerticalStackLayout>
+
+            <!-- Códigos de exemplo (dados fictícios) -->
+            <VerticalStackLayout Margin="20,24,20,0" Spacing="4">
+                <Label Text="Códigos para teste" Style="{StaticResource TituloSecao}" />
+                <Label Text="Dados fictícios — toque em um código para preenchê-lo."
+                       TextColor="{StaticResource TextoSuave}" FontSize="13" Margin="0,0,0,8" />
+                <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding CodigosExemplo}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <!-- x:DataType nulo: binding resolvido em tempo de execução (RelativeSource até a ViewModel) -->
+                            <Button x:DataType="{x:Null}" Style="{StaticResource Chip}" Text="{Binding .}" FontFamily="Consolas"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:RastreioViewModel}}, Path=UsarCodigoCommand}"
+                                    CommandParameter="{Binding .}" />
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </FlexLayout>
+            </VerticalStackLayout>
+
+            <!-- Rodapé -->
+            <Label Text="CBTPRDM · Trabalho Prático 03 · Alisson Ramos Aquino dos Santos (CB3032868)"
+                   FontSize="11" TextColor="{StaticResource TextoSuave}" HorizontalTextAlignment="Center"
+                   Margin="20,32,20,24" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  CBTPRDM - Trabalho Prático 03 - Rastreamento Logístico (.NET MAUI + MVVM)
+  Aluno: Alisson Ramos Aquino dos Santos - Prontuário: CB3032868
+-->
+<!-- VIEW - Página de resultados: status atual, datas, localização e histórico -->
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:RastreioLogistico.ViewModels"
+             xmlns:m="clr-namespace:RastreioLogistico.Models"
+             x:Class="RastreioLogistico.Views.ResultadoPage"
+             x:DataType="vm:ResultadoViewModel"
+             Title="Detalhes do pacote">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="⟳ Atualizar" Command="{Binding AtualizarCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <RefreshView Command="{Binding AtualizarCommand}"
+                 IsRefreshing="{Binding IsRefreshing, Mode=TwoWay}"
+                 RefreshColor="{StaticResource Primaria}">
+
+        <!-- Lista (CollectionView) com o histórico de eventos -->
+        <CollectionView ItemsSource="{Binding Historico}" SelectionMode="None">
+
+            <!-- ===== Cabeçalho: resumo do pacote ===== -->
+            <CollectionView.Header>
+                <VerticalStackLayout Spacing="14" Padding="16,16,16,4">
+
+                    <!-- Cartão de status -->
+                    <Border BackgroundColor="{StaticResource Primaria}" StrokeThickness="0"
+                            StrokeShape="RoundRectangle 18" Padding="18">
+                        <VerticalStackLayout Spacing="10">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="CÓDIGO DO PACOTE" FontSize="11" CharacterSpacing="0.8"
+                                           TextColor="{StaticResource TextoSobrePrimariaSuave}" />
+                                    <Label Text="{Binding Codigo}" FontSize="22" FontAttributes="Bold" FontFamily="Consolas"
+                                           TextColor="{StaticResource TextoSobrePrimaria}" />
+                                </VerticalStackLayout>
+                                <Label Grid.Column="1" Text="{Binding Status, Converter={StaticResource StatusParaIcone}}"
+                                       FontSize="30" VerticalOptions="Center" />
+                            </Grid>
+
+                            <Border HorizontalOptions="Start" StrokeThickness="0" StrokeShape="RoundRectangle 14"
+                                    Padding="12,5"
+                                    BackgroundColor="{Binding Status, Converter={StaticResource StatusParaCor}}">
+                                <Label Text="{Binding StatusTexto}" TextColor="White" FontAttributes="Bold" FontSize="14" />
+                            </Border>
+
+                            <ProgressBar Progress="{Binding Progresso}" ProgressColor="{StaticResource Destaque}"
+                                         BackgroundColor="{StaticResource PrimariaClara}" Margin="0,6,0,0" />
+                            <Grid ColumnDefinitions="*,*,*">
+                                <Label Text="Postado" FontSize="11" TextColor="{StaticResource TextoSobrePrimariaSuave}" />
+                                <Label Grid.Column="1" Text="Em trânsito" FontSize="11" HorizontalTextAlignment="Center"
+                                       TextColor="{StaticResource TextoSobrePrimariaSuave}" />
+                                <Label Grid.Column="2" Text="Entregue" FontSize="11" HorizontalTextAlignment="End"
+                                       TextColor="{StaticResource TextoSobrePrimariaSuave}" />
+                            </Grid>
+
+                            <Label Text="{Binding UltimaAtualizacaoTexto}" FontSize="11"
+                                   TextColor="{StaticResource TextoSobrePrimariaSuave}" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Localização atual -->
+                    <Border Style="{StaticResource Cartao}">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <Label Text="📍" FontSize="22" VerticalOptions="Center" />
+                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                <Label Text="Localização atual" Style="{StaticResource Rotulo}" />
+                                <Label Text="{Binding LocalizacaoAtual}" Style="{StaticResource Valor}" />
+                                <Label Text="{Binding Rota}" FontSize="13" TextColor="{StaticResource TextoSuave}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+
+                    <!-- Datas e dados do envio -->
+                    <Border Style="{StaticResource Cartao}">
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="14">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="Data de envio" Style="{StaticResource Rotulo}" />
+                                <Label Text="{Binding DataEnvioTexto}" Style="{StaticResource Valor}" />
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                <Label Text="Previsão de entrega" Style="{StaticResource Rotulo}" />
+                                <Label Text="{Binding PrevisaoEntregaTexto}" Style="{StaticResource Valor}" />
+                            </VerticalStackLayout>
+
+                            <BoxView Grid.Row="1" Grid.ColumnSpan="2" HeightRequest="1" Color="{StaticResource Borda}" />
+
+                            <VerticalStackLayout Grid.Row="2" Spacing="2">
+                                <Label Text="Serviço · Peso" Style="{StaticResource Rotulo}" />
+                                <Label Style="{StaticResource Valor}">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="{Binding Servico}" />
+                                            <Span Text=" · " />
+                                            <Span Text="{Binding PesoTexto}" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="2" Grid.Column="1" Spacing="2">
+                                <Label Text="Prazo" Style="{StaticResource Rotulo}" />
+                                <Label Text="{Binding PrazoTexto}" Style="{StaticResource Valor}">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding PrazoEmAlerta}" Value="True">
+                                            <Setter Property="TextColor" Value="{StaticResource Alerta}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+
+                    <Grid ColumnDefinitions="*,Auto" Margin="2,8,2,0">
+                        <Label Text="Histórico de eventos" Style="{StaticResource TituloSecao}" />
+                        <Label Grid.Column="1" Text="{Binding TotalEventosTexto}" FontSize="13"
+                               TextColor="{StaticResource TextoSuave}" VerticalOptions="Center" />
+                    </Grid>
+                </VerticalStackLayout>
+            </CollectionView.Header>
+
+            <!-- ===== Itens: linha do tempo ===== -->
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="m:EventoRastreio">
+                    <Grid ColumnDefinitions="62,30,*" Padding="16,0" MinimumHeightRequest="78">
+                        <!-- Data e hora -->
+                        <VerticalStackLayout Padding="0,12,0,0" Spacing="0">
+                            <Label Text="{Binding DataTexto}" FontSize="11" TextColor="{StaticResource TextoSuave}" />
+                            <Label Text="{Binding HoraTexto}" FontSize="15" FontAttributes="Bold" />
+                        </VerticalStackLayout>
+
+                        <!-- Linha + marcador -->
+                        <BoxView Grid.Column="1" WidthRequest="2" Color="{StaticResource Borda}"
+                                 HorizontalOptions="Center" VerticalOptions="Fill" />
+                        <Ellipse Grid.Column="1" WidthRequest="14" HeightRequest="14" Margin="0,15,0,0"
+                                 HorizontalOptions="Center" VerticalOptions="Start"
+                                 Stroke="{StaticResource Fundo}" StrokeThickness="3"
+                                 Fill="{Binding Status, Converter={StaticResource StatusParaCor}}" />
+
+                        <!-- Descrição -->
+                        <Border Grid.Column="2" Style="{StaticResource Cartao}" Padding="12,10" Margin="4,6,0,6">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="{Binding Descricao}" FontAttributes="Bold" FontSize="14" />
+                                <Label FontSize="12" TextColor="{StaticResource TextoSuave}">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="📍 " />
+                                            <Span Text="{Binding Local}" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label Text="{Binding Detalhe}" IsVisible="{Binding TemDetalhe}"
+                                       FontSize="12" TextColor="{StaticResource TextoSuave}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+            <!-- ===== Rodapé: navegação de volta ===== -->
+            <CollectionView.Footer>
+                <VerticalStackLayout Padding="16,12,16,28" Spacing="10">
+                    <Button Text="Rastrear outro pacote" Command="{Binding NovaConsultaCommand}"
+                            AutomationId="BotaoNovaConsulta" />
+                    <Label Text="Arraste para baixo ou use ⟳ Atualizar para consultar novamente."
+                           FontSize="11" TextColor="{StaticResource TextoSuave}" HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </CollectionView.Footer>
+        </CollectionView>
+    </RefreshView>
+</ContentPage>
